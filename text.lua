@@ -17,8 +17,8 @@ local TextBox = Instance.new("TextBox")
 local Button = Instance.new("TextButton")
 local ButtonCorner = Instance.new("UICorner")
 local LinkLabel = Instance.new("TextLabel")
-local ImageFrame = Instance.new("Frame")
-local ImageButton = Instance.new("ImageButton")
+local CopyButton = Instance.new("TextButton") -- ปุ่มคัดลอกลิงก์
+local ButtonCorner2 = Instance.new("UICorner")
 local UIStroke = Instance.new("UIStroke")
 
 -- ตั้งค่า GUI
@@ -62,43 +62,36 @@ Button.TextSize = 16
 ButtonCorner.CornerRadius = UDim.new(0.1, 0)
 ButtonCorner.Parent = Button
 
+-- ลิงก์สำหรับให้ผู้ใช้คัดลอก
 LinkLabel.Name = "LinkLabel"
 LinkLabel.Parent = Frame
 LinkLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
 LinkLabel.Position = UDim2.new(0.1, 0, 0.55, 0)
-LinkLabel.Text = "Click here to get your https://sub4unlock.io/trwMO"
+LinkLabel.Text = "Click to copy: https://sub4unlock.io/trwMO"
 LinkLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 LinkLabel.BackgroundTransparency = 1
 LinkLabel.TextWrapped = true
 LinkLabel.Font = Enum.Font.Gotham
 LinkLabel.TextSize = 14
 
--- UI สำหรับแสดงรูปภาพ
-ImageFrame.Name = "ImageFrame"
-ImageFrame.Parent = Frame
-ImageFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-ImageFrame.Position = UDim2.new(0.1, 0, 0.75, 0)
-ImageFrame.Size = UDim2.new(0.8, 0, 0.2, 0)
-ImageFrame.Visible = false
+-- ปุ่มสำหรับคัดลอกลิงก์
+CopyButton.Name = "CopyButton"
+CopyButton.Parent = Frame
+CopyButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+CopyButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+CopyButton.Text = "Copy Link"
+CopyButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CopyButton.Font = Enum.Font.Gotham
+CopyButton.TextSize = 14
 
-ImageButton.Name = "ImageButton"
-ImageButton.Parent = ImageFrame
-ImageButton.Size = UDim2.new(1, 0, 1, 0)
-ImageButton.Image = "rbxassetid://12345678" -- เปลี่ยนเป็น Asset ID ของรูปภาพที่ต้องการ
+ButtonCorner2.CornerRadius = UDim.new(0.1, 0)
+ButtonCorner2.Parent = CopyButton
 
-UIStroke.Parent = ImageFrame
-UIStroke.Thickness = 2
-UIStroke.Color = Color3.fromRGB(255, 255, 255)
-
--- ฟังก์ชันเปิด/ปิด ImageFrame
-local isImageFrameVisible = false
-local function toggleImageFrame()
-    isImageFrameVisible = not isImageFrameVisible
-    ImageFrame.Visible = isImageFrameVisible
-end
-
-ImageButton.MouseButton1Click:Connect(function()
-    toggleImageFrame()
+-- ฟังก์ชันคัดลอกลิงก์
+CopyButton.MouseButton1Click:Connect(function()
+    setclipboard("https://sub4unlock.io/trwMO") -- คัดลอกลิงก์ไปยังคลิปบอร์ด
+    print("Link copied to clipboard!")
 end)
 
 -- ฟังก์ชันตรวจสอบ Key และแสดง UI
@@ -120,7 +113,6 @@ Button.MouseButton1Click:Connect(function()
                 print("DUPE Disabled")
             end
         end)
-
     else
         print("Incorrect Key! Please try again.")
         TextBox.Text = "" -- ล้างข้อความใน TextBox
