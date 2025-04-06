@@ -1,14 +1,16 @@
+-- ลบ GUI เก่าทิ้ง
 local oldGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("LockTargetUI")
 if oldGui then
-    oldGui:Destroy()
+    oldGui:Destroy() -- ลบ GUI เก่าทิ้ง
 end
 
+-- รันสคริปต์ที่ให้มาเพื่อสร้าง GUI ใหม่
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
 local Footer = Instance.new("TextLabel")
-local CollapseButton = Instance.new("TextButton") -- ปุ่มย่อ
-local AutoLockButton = Instance.new("TextButton") -- ปุ่มขยาย
+local CollapseButton = Instance.new("TextButton") -- ปุ่มย่อ/ขยาย
+local AutoLockButton = Instance.new("TextButton") -- ปุ่ม Auto Lock
 
 ScreenGui.Name = "LockTargetUI"
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -76,10 +78,13 @@ local target = nil
 local function getTargetFromCharactersFolder()
     for _, character in pairs(workspace.Characters:GetChildren()) do
         if character:IsA("Model") and character:FindFirstChild("Head") then
-            return character -- เลือกตัวละครที่มีส่วนหัว
+            -- ตรวจสอบว่าไม่มีโฟลเดอร์ Combat อยู่ในตัวละคร
+            if not character:FindFirstChild("Combat") then
+                return character -- เลือกตัวละครที่มีส่วนหัวและไม่มี Combat
+            end
         end
     end
-    return nil -- หากไม่พบเป้าหมาย
+    return nil -- หากไม่พบเป้าหมายที่ไม่มี Combat
 end
 
 -- ฟังก์ชันที่ให้ตัวละครหันหน้าไปหามอนสเตอร์
