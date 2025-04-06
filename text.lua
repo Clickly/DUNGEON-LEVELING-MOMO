@@ -1,120 +1,151 @@
--- โหลด Library ของ UI
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-
--- Key ที่ถูกต้อง
-local CorrectKey = "MOMOMI00SHOP1"
-
--- ฟังก์ชันสำหรับตรวจสอบ Key
-local function checkKey(inputKey)
-    return inputKey == CorrectKey
+local oldGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("LockTargetUI")
+if oldGui then
+    oldGui:Destroy()
 end
 
--- UI สำหรับกรอก Key
-local KeyGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local UICorner = Instance.new("UICorner")
-local TextBox = Instance.new("TextBox")
-local Button = Instance.new("TextButton")
-local ButtonCorner = Instance.new("UICorner")
-local LinkLabel = Instance.new("TextLabel")
-local CopyButton = Instance.new("TextButton") -- ปุ่มคัดลอกลิงก์
-local ButtonCorner2 = Instance.new("UICorner")
-local UIStroke = Instance.new("UIStroke")
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local Footer = Instance.new("TextLabel")
+local CollapseButton = Instance.new("TextButton") -- ปุ่มย่อ
+local AutoLockButton = Instance.new("TextButton") -- ปุ่มขยาย
 
--- ตั้งค่า GUI
-KeyGui.Name = "KeyGui"
-KeyGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Name = "LockTargetUI"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
 
-Frame.Name = "KeyFrame"
-Frame.Parent = KeyGui
-Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Frame.Position = UDim2.new(0.35, 0, 0.4, 0)
-Frame.Size = UDim2.new(0.3, 0, 0.4, 0)
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Position = UDim2.new(0.75, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 200, 0, 120)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.BorderSizePixel = 0
 
-UICorner.CornerRadius = UDim.new(0.1, 0)
-UICorner.Parent = Frame
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, -25, 0.25, 0)
+Title.Position = UDim2.new(0, 5, 0, 0)
+Title.Font = Enum.Font.Cartoon
+Title.Text = "Lock Target"
+Title.TextSize = 22
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
-UIStroke.Parent = Frame
-UIStroke.Thickness = 2
-UIStroke.Color = Color3.fromRGB(0, 170, 255)
+CollapseButton.Name = "CollapseButton"
+CollapseButton.Parent = MainFrame
+CollapseButton.Position = UDim2.new(1, -25, 0, 0)
+CollapseButton.Size = UDim2.new(0, 20, 0, 20)
+CollapseButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+CollapseButton.TextColor3 = Color3.new(1, 1, 1)
+CollapseButton.Text = "-"
+CollapseButton.Font = Enum.Font.GothamBold
+CollapseButton.TextSize = 18
+CollapseButton.BorderSizePixel = 0
 
-TextBox.Name = "KeyTextBox"
-TextBox.Parent = Frame
-TextBox.Size = UDim2.new(0.8, 0, 0.15, 0)
-TextBox.Position = UDim2.new(0.1, 0, 0.15, 0)
-TextBox.PlaceholderText = "Enter your key"
-TextBox.Text = ""
-TextBox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextBox.Font = Enum.Font.Gotham
-TextBox.TextSize = 16
+Footer.Name = "Footer"
+Footer.Parent = MainFrame
+Footer.BackgroundTransparency = 1
+Footer.Position = UDim2.new(0.05, 0, 0.75, 0)
+Footer.Size = UDim2.new(0.9, 0, 0.2, 0)
+Footer.Font = Enum.Font.Cartoon
+Footer.Text = "YouTube: MOMO MI"
+Footer.TextSize = 16
+Footer.TextColor3 = Color3.fromRGB(255, 255, 255)
+Footer.TextXAlignment = Enum.TextXAlignment.Left
 
-Button.Name = "SubmitButton"
-Button.Parent = Frame
-Button.Size = UDim2.new(0.8, 0, 0.15, 0)
-Button.Position = UDim2.new(0.1, 0, 0.35, 0)
-Button.Text = "Submit Key"
-Button.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Button.Font = Enum.Font.Gotham
-Button.TextSize = 16
+-- ปุ่ม Auto Lock
+AutoLockButton.Name = "AutoLockButton"
+AutoLockButton.Parent = MainFrame
+AutoLockButton.Position = UDim2.new(0.05, 0, 0.55, 0)
+AutoLockButton.Size = UDim2.new(0.9, 0, 0.2, 0)
+AutoLockButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+AutoLockButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
+AutoLockButton.Font = Enum.Font.Cartoon
+AutoLockButton.Text = "Auto Lock: Off"
+AutoLockButton.TextSize = 18
+AutoLockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-ButtonCorner.CornerRadius = UDim.new(0.1, 0)
-ButtonCorner.Parent = Button
+-- ตัวแปรเก็บสถานะของ Auto Lock
+local autoLockEnabled = false
+local target = nil
 
--- ลิงก์สำหรับให้ผู้ใช้คัดลอก
-LinkLabel.Name = "LinkLabel"
-LinkLabel.Parent = Frame
-LinkLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
-LinkLabel.Position = UDim2.new(0.1, 0, 0.55, 0)
-LinkLabel.Text = "Click to copy: https://sub4unlock.io/trwMO"
-LinkLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-LinkLabel.BackgroundTransparency = 1
-LinkLabel.TextWrapped = true
-LinkLabel.Font = Enum.Font.Gotham
-LinkLabel.TextSize = 14
+-- ฟังก์ชันการเลือกเป้าหมายจากโฟลเดอร์ Characters
+local function getTargetFromCharactersFolder()
+    for _, character in pairs(workspace.Characters:GetChildren()) do
+        if character:IsA("Model") and character:FindFirstChild("Head") then
+            return character -- เลือกตัวละครที่มีส่วนหัว
+        end
+    end
+    return nil -- หากไม่พบเป้าหมาย
+end
 
--- ปุ่มสำหรับคัดลอกลิงก์
-CopyButton.Name = "CopyButton"
-CopyButton.Parent = Frame
-CopyButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-CopyButton.Position = UDim2.new(0.1, 0, 0.7, 0)
-CopyButton.Text = "Copy Link"
-CopyButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
-CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CopyButton.Font = Enum.Font.Gotham
-CopyButton.TextSize = 14
+-- ฟังก์ชันที่ให้ตัวละครหันหน้าไปหามอนสเตอร์
+local function faceTarget()
+    if target then
+        local targetPosition = target:WaitForChild("Head").Position
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            -- คำนวณทิศทางที่ตัวละครต้องหันไป
+            local direction = (targetPosition - character.HumanoidRootPart.Position).unit
+            -- หันหน้าไปที่ทิศทางเป้าหมาย
+            character:SetPrimaryPartCFrame(CFrame.lookAt(character.HumanoidRootPart.Position, targetPosition))
+        end
+    end
+end
 
-ButtonCorner2.CornerRadius = UDim.new(0.1, 0)
-ButtonCorner2.Parent = CopyButton
+-- ฟังก์ชันตรวจสอบว่าเป้าหมายตายหรือไม่
+local function isTargetDead()
+    if target and target:FindFirstChild("Humanoid") then
+        return target.Humanoid.Health <= 0
+    end
+    return false
+end
 
--- ฟังก์ชันคัดลอกลิงก์
-CopyButton.MouseButton1Click:Connect(function()
-    setclipboard("https://sub4unlock.io/trwMO") -- คัดลอกลิงก์ไปยังคลิปบอร์ด
-    print("Link copied to clipboard!")
-end)
+-- ฟังก์ชันเลือกเป้าหมายใหม่หากเป้าหมายตาย
+local function updateTarget()
+    if isTargetDead() then
+        target = getTargetFromCharactersFolder() -- เลือกเป้าหมายใหม่
+    end
+end
 
--- ฟังก์ชันตรวจสอบ Key และแสดง UI
-Button.MouseButton1Click:Connect(function()
-    local enteredKey = TextBox.Text
-    if checkKey(enteredKey) then
-        print("Correct Key! Showing UI...")
-        KeyGui:Destroy() -- ลบ GUI ของ Key
-        -- เปิด UI หลัก
-        local Window = Library.CreateLib("MOMO HUB", "DarkTheme")
-
-        local Tab = Window:NewTab("DUPE")
-        local Section = Tab:NewSection("DUPE")
-
-        Section:NewToggle("UTC", "DUPE", function(state)
-            if state then
-                print("DUPE Enabled")
-            else
-                print("DUPE Disabled")
-            end
-        end)
-    else
-        print("Incorrect Key! Please try again.")
-        TextBox.Text = "" -- ล้างข้อความใน TextBox
+-- การอัปเดตตำแหน่งในทุกเฟรม
+game:GetService("RunService").RenderStepped:Connect(function()
+    if autoLockEnabled then
+        updateTarget() -- อัปเดตเป้าหมายหากจำเป็น
+        faceTarget()   -- ให้ตัวละครหันหน้าไปหามอนสเตอร์ทุกเฟรม
     end
 end)
+
+-- Collapse / Expand UI
+local collapsed = false
+CollapseButton.MouseButton1Click:Connect(function()
+    collapsed = not collapsed
+
+    if collapsed then
+        Footer.Visible = false
+        MainFrame.Size = UDim2.new(0, 200, 0, 30)
+        CollapseButton.Text = "+"
+    else
+        Footer.Visible = true
+        MainFrame.Size = UDim2.new(0, 200, 0, 120)
+        CollapseButton.Text = "-"
+    end
+end)
+
+-- เปลี่ยนสถานะ Auto Lock เมื่อคลิกปุ่ม
+AutoLockButton.MouseButton1Click:Connect(function()
+    autoLockEnabled = not autoLockEnabled
+    if autoLockEnabled then
+        AutoLockButton.Text = "Auto Lock: On"
+        AutoLockButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- เปลี่ยนสีเมื่อเปิด Auto Lock
+    else
+        AutoLockButton.Text = "Auto Lock: Off"
+        AutoLockButton.TextColor3 = Color3.fromRGB(255, 0, 0) -- เปลี่ยนสีเมื่อปิด Auto Lock
+    end
+end)
+
+-- เลือกเป้าหมายจากโฟลเดอร์ Characters เมื่อเริ่มต้น
+target = getTargetFromCharactersFolder()
